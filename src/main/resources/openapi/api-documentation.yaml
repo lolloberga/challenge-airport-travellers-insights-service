@@ -6,7 +6,7 @@ info:
   version: '1.0'
 
 servers:
-  - url: ''
+  - url: 'http://localhost:8080'
 
 tags:
   - name: Travel
@@ -39,12 +39,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegisterTripResponse'
+  /trips/{tripId}:
+    delete:
+      summary: Cancel a trip
+      description: Cancel a registered trip.
+      operationId: cancelTrip
+      tags: [ Travel ]
+      parameters:
+        - in: path
+          name: tripId
+          schema:
+            type: string
+          required: true
+          description: Trip unique identify
+      responses:
+        '201':
+          description: Trip deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelTripResponse'
   /airport-insights:
     post:
       summary: Get airport insights
-      description: '*TODO Fill this with description*'
+      description: |
+        Given an airport and a date, return the number of traveller that transit through the airport in that date, 
+        the number of travellers that are travelling for leisure and for business and the probabilities that the estimations are correct.
       operationId: getAirportInsights
       tags: [ Airport ]
+      requestBody:
+        description: Airport information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAirportInsightsRequest'
       responses:
         '200':
           description: Airport insights
@@ -52,7 +81,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetAirportInsightsResponse'
-
+  /airport-travellers:
+    post:
+      summary: Get airport travellers
+      description: |
+        Given an airport and a range of dates, return the number of travellers that transit through the airport, 
+        the number of travellers that are travelling for leisure and for business and their trends with reference to 
+        the previous day for each day within the specified range.
+      operationId: getAirportTravellers
+      tags: [ Airport ]
+      requestBody:
+        description: Airport information and date range
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAirportTravellersRequest'
+      responses:
+        '200':
+          description: Airport travellers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAirportTravellersResponse'
 components:
   schemas:
     RegisterTripRequest:
@@ -95,6 +146,24 @@ components:
         - destinationAirportCode
         - departureDate
         - returnDate
+    CancelTripResponse:
+      type: object
+      properties:
+        cancelTripId:
+          description: Unique travle id that was just deleted
+          type: string
+    GetAirportInsightsRequest:
+      type: object
+      properties:
+        airportCode:
+          $ref: '#/components/schemas/AirportIataCode'
+        date:
+          description: Date in which you wanna get insights
+          type: string
+          format: date
+      required:
+        - airportCode
+        - date
     GetAirportInsightsResponse:
       type: object
       properties:
@@ -136,6 +205,68 @@ components:
         - date
         - leisurePurposeTravellers
         - businessPurposeTravellers
+    GetAirportTravellersRequest:
+      type: object
+      properties:
+        airportCode:
+          $ref: '#/components/schemas/AirportIataCode'
+        dateFrom:
+          description: Date from in which you wanna get travellers
+          type: string
+          format: date
+        dateTo:
+          description: Date to in which you wanna get travellers
+          type: string
+          format: date
+      required:
+        - airportCode
+        - dateFrom
+        - dateTo
+    GetAirportTravellersResponse:
+      type: object
+      properties:
+        date:
+          description: Date for each day inside the range
+          type: string
+          format: date
+        totalTravellers:
+          description: Number of travellers in the airport
+          type: integer
+          format: int32
+          example: 200
+        totalTravellersTrend:
+          description: Trend of the total travellers in the airport
+          type: integer
+          format: int32
+          example: 0
+        businessPurposeTravellers:
+          description: Number of travellers in the airport that are travelling for business
+          type: integer
+          format: int32
+          example: 100
+        businessPurposeTravellersTrend:
+          description: Trend of the business purpose travellers in the airport
+          type: integer
+          format: int32
+          example: -2
+        leisurePurposeTravellers:
+          description: Number of travellers in the airport that are travelling for leisure
+          type: integer
+          format: int32
+          example: 125
+        leisurePurposeTravellersTrend:
+          description: Trend of the leisure purpose travellers in the airport
+          type: integer
+          format: int32
+          example: 32
+      required:
+        - date
+        - totalTravellers
+        - totalTravellersTrend
+        - businessPurposeTravellers
+        - businessPurposeTravellersTrend
+        - leisurePurposeTravellers
+        - leisurePurposeTravellersTrend
     AirportIataCode:
       description: IATA code
       type: string

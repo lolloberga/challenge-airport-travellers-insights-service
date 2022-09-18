@@ -1,6 +1,7 @@
 package ai.faire.challenge.airport.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
