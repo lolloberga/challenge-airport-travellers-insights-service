@@ -1,11 +1,13 @@
 package ai.faire.challenge.airport.util;
 
+import lombok.var;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -35,22 +37,22 @@ public class StatisticUtilTest {
   @Test
   void probabilityOfIndependentEventsShouldFailWhenInputIsEmpty() {
     // when/then
-    var error = assertThrows(IllegalArgumentException.class, () -> probabilityOfIndependentEvents(List.of()));
+    var error = assertThrows(IllegalArgumentException.class, () -> probabilityOfIndependentEvents(new ArrayList<>()));
     assertThat(error.getMessage()).isEqualTo("Probabilities list cannot be empty");
   }
 
   private static Stream<Arguments> probabilityFixtures() {
     return Stream.of(
       Arguments.of(
-        List.of(probabilityOf("0.00")),
+        io.vavr.collection.List.of(probabilityOf("0.00")),
         probabilityOf("0.00")
       ),
       Arguments.of(
-        List.of(probabilityOf("0.59"), probabilityOf("0.98")),
+        io.vavr.collection.List.of(probabilityOf("0.59"), probabilityOf("0.98")),
         probabilityOf("0.5782")
       ),
       Arguments.of(
-        List.of(probabilityOf("0.59"), probabilityOf("0.98"), probabilityOf("1.00")),
+        io.vavr.collection.List.of(probabilityOf("0.59"), probabilityOf("0.98"), probabilityOf("1.00")),
         probabilityOf("0.5782")
       )
     );
